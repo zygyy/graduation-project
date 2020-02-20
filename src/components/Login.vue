@@ -15,15 +15,19 @@
       >
         <!-- 管理员名称 -->
         <el-form-item prop="username">
-          <el-input v-model="loginFrom.username" prefix-icon="el-icon-user-solid"></el-input>
+          <el-input v-model="loginFrom.username" prefix-icon="iconfont icon-user"></el-input>
         </el-form-item>
         <!-- 密码 -->
         <el-form-item prop="password">
-          <el-input type="password" v-model="loginFrom.password" prefix-icon="el-icon-question"></el-input>
+          <el-input
+            type="password"
+            v-model="loginFrom.password"
+            prefix-icon="iconfont icon-3702mima"
+          ></el-input>
         </el-form-item>
         <el-form-item class="btns">
-          <el-button type="primary">登录</el-button>
-          <el-button type="info">重置</el-button>
+          <el-button type="primary" @click="login">登录</el-button>
+          <el-button type="info" @click="resetLoginForm">重置</el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -35,7 +39,7 @@ export default {
   data() {
     return {
       loginFrom: {
-        username: "admin",
+        username: "百晓生",
         password: "123456"
       },
       //表单验证规则
@@ -47,9 +51,9 @@ export default {
             trigger: "blur"
           },
           {
-            min: 3,
+            min: 1,
             max: 10,
-            message: "长度在3到10个字符",
+            message: "长度在1到10个字符",
             trigger: "blur"
           }
         ],
@@ -70,7 +74,39 @@ export default {
     };
   },
   created() {},
-  methods: {}
+  methods: {
+    //重置操作
+    resetLoginForm() {
+      //清空表单内容
+      this.$refs.loginFromRef.resetFields();
+    },
+    //登录
+    login() {
+      // 预验证，先获取引用对象，在调用validate函数
+      this.$refs.loginFromRef.validate(async valid => {
+        if (!valid) {
+          return;
+        } else {
+          //登录请求
+          const { data: result } = await this.$http.post(
+            "admin/login",
+            this.loginFrom
+          );
+          if (result.status === 500) {
+            return this.$message.error(result.msg);
+          } else {
+            this.$message.success(result.msg);
+             //1.将登录成功之后的token，保存到客户端的sessionStorage中
+            //  1.1 项目中除了登录之外的其他API接口，必须在登录之后才能访问
+            //  1.2 token 只应该在当前网站打开期间生效，所以将token保存到sessionStorage中
+            window.sessionStorage.setItem("token",result.obj.token);
+            //2.通过编程式导航跳转到后台主页
+            this.$router.push("/home");
+          }
+        }
+      });
+    }
+  }
 };
 </script>
 <style lang='less' scoped>
