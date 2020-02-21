@@ -22,7 +22,7 @@ axios.interceptors.request.use(config => {
   //再request拦截器中展示进度条NProgress.start()
   NProgress.start()
   //为请求头对象，添加token验证的Authorization字段
-  config.headers.Authorization = window.sessionStorage.getItem('token')
+  //config.headers.Authorization = window.sessionStorage.getItem('token')
   return config;
 })
 
