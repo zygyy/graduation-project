@@ -5,6 +5,7 @@ import Login from '@/components/Login'
 import Home from '@/components/Home'
 import Welcome from '@/components/Welcome'
 import User from '@/components/User/User'
+import Grade from '@/components/grade/Grade'
 
 Vue.use(Router)
 
@@ -30,6 +31,10 @@ const router= new Router({
         {
           path:'/users',
           component:User
+        },
+        {
+          path:'/grade',
+          component:Grade
         }
       ]
     }
