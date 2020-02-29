@@ -556,11 +556,12 @@ export default {
       this.editForm.address = this.addressCascader.join("/");
       this.editForm.workingLocation = this.workingLocationCascader.join("/");
       //当离职日期和离职原因都为空默认该员工在职
+      console.log(this.editForm)
       if (
         this.editForm.leaveDate === null &&
-        this.editForm.terminationReason === null
+        (this.editForm.terminationReason === null)
       ) {
-        this.$refs.editFormRef.validate(async valid => {
+          this.$refs.editFormRef.validate(async valid => {
           if (!valid) {
             return;
           } else {
@@ -579,8 +580,8 @@ export default {
             }
           }
         });
-      } else {
-        //当离职日期和离职原因都填写完毕默认该员工离职
+      }else{
+         //当离职日期和离职原因都填写完毕默认该员工离职
         //弹框提示是否离职
         const res = await this.$confirm(
           "此操作将默认该员工离职, 是否继续?",
@@ -594,19 +595,19 @@ export default {
           return err;
         });
         if (res !== "confirm") {
-          this.editForm.leaveDate = "";
-          this.editForm.terminationReason = "";
+          this.editForm.leaveDate = null;
+          this.editForm.terminationReason = null;
           return this.$message.info("已取消该操作！");
         } else {
           if (
             this.editForm.terminationReason === null ||
             this.editForm.leaveDate === null
           ) {
-            this.editForm.leaveDate = "";
-            this.editForm.terminationReason = "";
+            this.editForm.leaveDate = null
+            this.editForm.terminationReason =null;
             return this.$message.info("离职日期和离职原因必填！");
           } else {
-            //更改员工为离职
+              //更改员工为离职
             const { data: res } = await this.$http.put(
               "admin/updateEmployee",
               this.editForm
