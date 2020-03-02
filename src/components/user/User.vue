@@ -556,7 +556,6 @@ export default {
       this.editForm.address = this.addressCascader.join("/");
       this.editForm.workingLocation = this.workingLocationCascader.join("/");
       //当离职日期和离职原因都为空默认该员工在职
-      console.log(this.editForm)
       if (
         this.editForm.leaveDate === null &&
         (this.editForm.terminationReason === null)

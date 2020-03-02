@@ -16,7 +16,32 @@
       </el-row>
       <!-- 职位列表区域 -->
       <el-table :data="departmentAndGrade" stripe border>
-        <el-table-column type="expand"></el-table-column>
+        <el-table-column type="expand">
+          <template slot-scope="scope">
+            <el-row>
+              <!-- 渲染一级部门 -->
+              <el-col :span="7">
+                <el-tag>{{scope.row.department.department.name}}</el-tag>
+                <i class="el-icon-caret-right"></i>
+              </el-col>
+              <!-- 渲染二级部门 -->
+              <el-col :span="7">
+                <el-tag type="success">{{scope.row.department.name}}</el-tag>
+                <i class="el-icon-caret-right"></i>
+              </el-col>
+              <!-- 渲染对该职位的描述 -->
+              <el-col :span="10">
+                <el-tag
+                  type="warning"
+                  v-for="(item,i) in scope.row.describesSplit"
+                  :key="i"
+                  closable
+                  @close="removeDescribe(scope.row,i)"
+                >{{item}}</el-tag>
+              </el-col>
+            </el-row>
+          </template>
+        </el-table-column>
         <el-table-column type="index"></el-table-column>
         <el-table-column label="职位名称" prop="name"></el-table-column>
         <el-table-column label="等级" prop="scale">
@@ -45,7 +70,12 @@ export default {
   data() {
     return {
       //部门以及职位信息
-      departmentAndGrade: []
+      departmentAndGrade: [],
+      //
+      deleteDescribe: {
+        id: "",
+        describes: ""
+      }
     };
   },
   created() {
@@ -91,9 +121,51 @@ export default {
           }
         }
       }
+    },
+    //删除对该职位的描述
+     async removeDescribe(grade, i) {
+      //弹框提示是否删除
+      const confirmResult = await this.$confirm(
+        "此操作将永久删除该描述, 是否继续?",
+        "提示",
+        {
+          confirmButtonText: "确定",
+          cancelButtonText: "取消",
+          type: "warning"
+        }
+      ).catch(err => {
+        return err;
+      });
+      if (confirmResult !== "confirm") {
+        return this.$message.info("取消删除！");
+      } else {
+         grade.describesSplit.splice(i, 1);
+         grade.describes = grade.describesSplit.join("，");
+         this.deleteDescribe.describes = grade.describes;
+         this.deleteDescribe.id = grade.id;
+         const { data: res } = await this.$http.put(
+           "grade/deleteDescribe",
+          this.deleteDescribe
+        );
+        if (res.status !== 200) {
+          return this.$message.error(res.msg);
+        } else {
+          this.$message.success(res.msg);
+           grade=res.obj.obj
+        }
+      }
     }
   }
 };
 </script>
 <style lang="less" scoped>
+.bdtop {
+  border-top: 1px solid #eee;
+}
+.bdbottom {
+  border-bottom: 1px solid #eee;
+}
+.el-tag {
+  margin: 7px;
+}
 </style>
