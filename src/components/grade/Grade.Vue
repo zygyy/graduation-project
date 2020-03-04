@@ -11,7 +11,7 @@
     <el-card>
       <el-row>
         <el-col>
-          <el-button type="primary">添加职位</el-button>
+          <el-button type="primary" @click="openAddDialog">添加职位</el-button>
         </el-col>
       </el-row>
       <!-- 职位列表区域 -->
@@ -26,18 +26,34 @@
               </el-col>
               <!-- 渲染二级部门 -->
               <el-col :span="7">
-                <el-tag type="success">{{scope.row.department.name}}</el-tag>
+                <el-tag type="warning">{{scope.row.department.name}}</el-tag>
                 <i class="el-icon-caret-right"></i>
               </el-col>
               <!-- 渲染对该职位的描述 -->
-              <el-col :span="10">
+              <el-col :span="8">
                 <el-tag
-                  type="warning"
+                  type="success"
                   v-for="(item,i) in scope.row.describesSplit"
                   :key="i"
                   closable
                   @close="removeDescribe(scope.row,i)"
                 >{{item}}</el-tag>
+                <!-- 输入框和按钮之间的切换 -->
+                <el-input
+                  class="input-new-tag"
+                  v-if="scope.row.inputVisible==='true'"
+                  v-model="scope.row.inputValue"
+                  ref="saveTagInput"
+                  size="small"
+                  @keyup.enter.native="handleInputConfirm"
+                  @blur="handleInputConfirm"
+                ></el-input>
+                <el-button
+                  v-else
+                  class="button-new-tag"
+                  size="small"
+                  @click="showInput(scope.row)"
+                >+ New Tag</el-button>
               </el-col>
             </el-row>
           </template>
@@ -53,7 +69,7 @@
         </el-table-column>
         <el-table-column label="操作">
           <template slot-scope="scope">
-            <el-button type="primary" icon="el-icon-edit">编辑</el-button>
+            <el-button type="primary" icon="el-icon-edit" @click="openEditDialog(scope.row)">编辑</el-button>
             <el-button
               type="danger"
               icon="el-icon-delete"
@@ -63,6 +79,48 @@
         </el-table-column>
       </el-table>
     </el-card>
+
+    <!-- 编辑职位的对话框 -->
+    <el-dialog
+      title="职位名称修改中..."
+      :visible.sync="editDialogVisible"
+      width="30%"
+      @close="editDialogClosed"
+    >
+      <el-form :model="editRuleForm" :rules="editRules" ref="editRuleRef" label-width="100px">
+        <el-form-item label="职位名称" prop="name">
+          <el-input v-model="editRuleForm.name"></el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="editDialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="saveEditDialog">确 定</el-button>
+      </span>
+    </el-dialog>
+
+    <!-- 新增职位的对话框 -->
+    <el-dialog title="新增职位中..." :visible.sync="addDialogVisible" width="40%"  @close="addDialogClosed">
+      <el-form :model="addRuleForm" :rules="addRules" ref="addRuleRef" label-width="100px">
+        <el-form-item label="职位名称" prop="name">
+          <el-input v-model="addRuleForm.name" style="width: 300px;"></el-input>
+        </el-form-item>
+        <el-form-item label="职位描述" prop="describes">
+          <el-input v-model="addRuleForm.describes" style="width: 300px;" placeholder="以中文状态的'，'分隔开"></el-input>
+        </el-form-item>
+        <el-form-item label="部门">
+          <el-cascader
+            v-model="departmentDefault"
+            :options="selectdepartments"
+            :props="cascaderProps"
+            style="width:300px;"
+          ></el-cascader>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="addDialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="saveAddDialog">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 <script>
@@ -71,10 +129,50 @@ export default {
     return {
       //部门以及职位信息
       departmentAndGrade: [],
-      //
+      //根据id修改职位的描述
       deleteDescribe: {
         id: "",
         describes: ""
+      },
+      //用于控制编辑职位的对话框的显示和隐藏
+      editDialogVisible: false,
+      editRules: {
+        name: [
+          {
+            required: true,
+            message: "请输入职位名称",
+            trigger: "blur"
+          }
+        ]
+      },
+      editRuleForm: {},
+      //用户控制新增职位对话框的显示
+      addDialogVisible: false,
+      //新增职位的验证规则
+      addRules: {
+        name: [
+          {
+            required: true,
+            message: "请输入职位名称",
+            trigger: "blur"
+          }
+        ]
+      },
+      addRuleForm: {
+        name: "",
+        describes: ""
+      },
+      //获取部门信息
+      selectdepartments: {},
+      //新增职位的时候双向绑定的部门
+      departmentDefault: [],
+
+      //指定级联选择器对象
+      cascaderProps: {
+        value: "id",
+        label: "name",
+        children: "firstChildren",
+        expandTrigger: "hover"
       }
     };
   },
@@ -87,6 +185,12 @@ export default {
       const { data: res } = await this.$http.get("admin/getGrades");
       if (res.status === 200) {
         this.departmentAndGrade = res.obj;
+        this.departmentAndGrade.forEach(item => {
+          //控制按钮和文本框的切换
+          item.inputVisible = false;
+          //文本框输入的内容
+          item.inputValue = "";
+        });
       } else {
         return this.$message.error("加载失败！");
       }
@@ -123,7 +227,7 @@ export default {
       }
     },
     //删除对该职位的描述
-     async removeDescribe(grade, i) {
+    async removeDescribe(grade, i) {
       //弹框提示是否删除
       const confirmResult = await this.$confirm(
         "此操作将永久删除该描述, 是否继续?",
@@ -139,22 +243,103 @@ export default {
       if (confirmResult !== "confirm") {
         return this.$message.info("取消删除！");
       } else {
-         grade.describesSplit.splice(i, 1);
-         grade.describes = grade.describesSplit.join("，");
-         this.deleteDescribe.describes = grade.describes;
-         this.deleteDescribe.id = grade.id;
-         const { data: res } = await this.$http.put(
-           "grade/deleteDescribe",
+        grade.describesSplit.splice(i, 1);
+        grade.describes = grade.describesSplit.join("，");
+        this.deleteDescribe.describes = grade.describes;
+        this.deleteDescribe.id = grade.id;
+        const { data: res } = await this.$http.put(
+          "grade/deleteDescribe",
           this.deleteDescribe
         );
         if (res.status !== 200) {
           return this.$message.error(res.msg);
         } else {
           this.$message.success(res.msg);
-           grade=res.obj.obj
+          grade = res.obj.obj;
         }
       }
-    }
+    },
+    //文本框失去焦点
+    handleInputConfirm() {},
+    //点击按钮展示文本输入框
+    showInput(row) {
+      row.inputVisible = true;
+
+      console.log(this.departmentAndGrade);
+    },
+    //打开编辑职位的对话框
+    async openEditDialog(row) {
+      if (row.level !== 2) {
+        return this.$message.error("非职位不可修改！");
+      } else {
+        this.editDialogVisible = true;
+        this.editRuleForm = row;
+      }
+    },
+    //编辑职位的对话框的确定按钮
+    saveEditDialog() {
+      this.$refs.editRuleRef.validate(async valid => {
+        if (!valid) {
+          return;
+        } else {
+          const { data: res } = await this.$http.put(
+            "grade/updateGrade",
+            this.editRuleForm
+          );
+          if (res.status !== 200) {
+            return this.$message.error(res.msg);
+          } else {
+            this.$message.success(res.msg);
+            this.editDialogVisible = false;
+            this.getDepartments();
+          }
+        }
+      });
+    },
+    //监听修改对话框的关闭事件
+    editDialogClosed() {
+      this.$refs.editRuleForm.resetFields();
+    },
+    //打开添加职位对话框
+    async openAddDialog() {
+      const { data: res } = await this.$http.get(
+        "grade/getDepartmentsNotlevel2"
+      );
+      if (res.status !== 200) {
+        return this.$message.error("获取部门信息失败！");
+      } else {
+        this.selectdepartments = res.obj;
+        this.addDialogVisible = true;
+      }
+    },
+    //添加职位的确定按钮
+    saveAddDialog() {
+      this.$refs.addRuleRef.validate(async valid => {
+        if (!valid) {
+          return;
+        } else {
+          if (this.departmentDefault.length === 2) {
+            const { data: res } = await this.$http.post(
+              "grade/addGrade/"+this.departmentDefault[1],
+              this.addRuleForm
+            );
+            if (res.status !== 200) {
+              return this.$message.error(res.msg);
+            } else {
+              this.$message.success(res.msg);
+              this.addDialogVisible = false;
+              this.getDepartments();
+            }
+          } else {
+            return this.$message.error("请先选择部门,再保存！");
+          }
+        }
+      });
+    },
+     //监听添加对话框的关闭事件
+    addDialogClosed() {
+      this.$refs.addRuleRef.resetFields();
+    },
   }
 };
 </script>
@@ -167,5 +352,8 @@ export default {
 }
 .el-tag {
   margin: 7px;
+}
+.input-new-tag {
+  width: 150px;
 }
 </style>
