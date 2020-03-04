@@ -115,6 +115,17 @@
             style="width:300px;"
           ></el-cascader>
         </el-form-item>
+         <el-form-item label="等级">
+          <el-select v-model="addRuleForm.scale"  style="width:300px;">
+            <el-option
+              v-for="item in degreeOptions"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+              
+            ></el-option>
+          </el-select>
+        </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="addDialogVisible = false">取 消</el-button>
@@ -156,24 +167,47 @@ export default {
             message: "请输入职位名称",
             trigger: "blur"
           }
+        ],
+        describes: [
+          {
+            required: true,
+            message: "请输入职位名称",
+            trigger: "blur"
+          }
         ]
       },
       addRuleForm: {
         name: "",
-        describes: ""
+        describes: "",
+        scale:''
       },
       //获取部门信息
       selectdepartments: {},
       //新增职位的时候双向绑定的部门
       departmentDefault: [],
-
       //指定级联选择器对象
       cascaderProps: {
         value: "id",
         label: "name",
         children: "firstChildren",
         expandTrigger: "hover"
-      }
+      },
+       //学位选择
+      degreeOptions: [
+        {
+          value: "高",
+          label: "高"
+        },
+        {
+          value: "中",
+          label: "中"
+        },
+        {
+          value: "低",
+          label: "低"
+        }
+      ],
+
     };
   },
   created() {
