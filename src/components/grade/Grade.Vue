@@ -30,7 +30,7 @@
                 <i class="el-icon-caret-right"></i>
               </el-col>
               <!-- 渲染对该职位的描述 -->
-              <el-col :span="8">
+              <el-col :span="10">
                 <el-tag
                   type="success"
                   v-for="(item,i) in scope.row.describesSplit"
@@ -41,12 +41,12 @@
                 <!-- 输入框和按钮之间的切换 -->
                 <el-input
                   class="input-new-tag"
-                  v-if="scope.row.inputVisible==='true'"
+                  v-if="scope.row.inputVisible"
                   v-model="scope.row.inputValue"
-                  ref="saveTagInput"
                   size="small"
-                  @keyup.enter.native="handleInputConfirm"
-                  @blur="handleInputConfirm"
+                  ref="saveTagInput"
+                  @keyup.enter.native="handleInputConfirm(scope.row)"
+                  @blur="handleInputConfirm(scope.row)"
                 ></el-input>
                 <el-button
                   v-else
@@ -99,13 +99,22 @@
     </el-dialog>
 
     <!-- 新增职位的对话框 -->
-    <el-dialog title="新增职位中..." :visible.sync="addDialogVisible" width="40%"  @close="addDialogClosed">
+    <el-dialog
+      title="新增职位中..."
+      :visible.sync="addDialogVisible"
+      width="40%"
+      @close="addDialogClosed"
+    >
       <el-form :model="addRuleForm" :rules="addRules" ref="addRuleRef" label-width="100px">
         <el-form-item label="职位名称" prop="name">
           <el-input v-model="addRuleForm.name" style="width: 300px;"></el-input>
         </el-form-item>
         <el-form-item label="职位描述" prop="describes">
-          <el-input v-model="addRuleForm.describes" style="width: 300px;" placeholder="以中文状态的'，'分隔开"></el-input>
+          <el-input
+            v-model="addRuleForm.describes"
+            style="width: 300px;"
+            placeholder="以中文状态的'，'分隔开"
+          ></el-input>
         </el-form-item>
         <el-form-item label="部门">
           <el-cascader
@@ -115,14 +124,13 @@
             style="width:300px;"
           ></el-cascader>
         </el-form-item>
-         <el-form-item label="等级">
-          <el-select v-model="addRuleForm.scale"  style="width:300px;">
+        <el-form-item label="等级">
+          <el-select v-model="addRuleForm.scale" style="width:300px;">
             <el-option
               v-for="item in degreeOptions"
               :key="item.value"
               :label="item.label"
               :value="item.value"
-              
             ></el-option>
           </el-select>
         </el-form-item>
@@ -179,7 +187,7 @@ export default {
       addRuleForm: {
         name: "",
         describes: "",
-        scale:''
+        scale: ""
       },
       //获取部门信息
       selectdepartments: {},
@@ -192,7 +200,7 @@ export default {
         children: "firstChildren",
         expandTrigger: "hover"
       },
-       //学位选择
+      //职位等级选择
       degreeOptions: [
         {
           value: "高",
@@ -206,8 +214,7 @@ export default {
           value: "低",
           label: "低"
         }
-      ],
-
+      ]
     };
   },
   created() {
@@ -219,12 +226,6 @@ export default {
       const { data: res } = await this.$http.get("admin/getGrades");
       if (res.status === 200) {
         this.departmentAndGrade = res.obj;
-        this.departmentAndGrade.forEach(item => {
-          //控制按钮和文本框的切换
-          item.inputVisible = false;
-          //文本框输入的内容
-          item.inputValue = "";
-        });
       } else {
         return this.$message.error("加载失败！");
       }
@@ -294,12 +295,37 @@ export default {
       }
     },
     //文本框失去焦点
-    handleInputConfirm() {},
+    async handleInputConfirm(row) {
+      if (row.inputValue.trim().length === 0) {
+        row.inputValue = "";
+        row.inputVisible = false;
+        return;
+      }
+      row.describesSplit.push(row.inputValue.trim());
+      console.log(row);
+      row.inputValue = "";
+      row.inputVisible = false;
+      //发起请求，保存这次操作
+      this.deleteDescribe.id = row.id;
+      this.deleteDescribe.describes = row.describesSplit.join("，");
+      console.log(this.deleteDescribe);
+      const { data: res } = await this.$http.put(
+        "grade/deleteDescribe",
+        this.deleteDescribe
+      );
+      if (res.status !== 200) {
+        return this.$message.error("新增失败！");
+      } else {
+        this.$message.success("新增成功！");
+      }
+    },
     //点击按钮展示文本输入框
     showInput(row) {
       row.inputVisible = true;
-
-      console.log(this.departmentAndGrade);
+      //nextTick方法的作用:就是当页面上的元素被重新渲染之后,才会执行回调函数中的代码
+      this.$nextTick(_ => {
+        this.$refs.saveTagInput.$refs.input.focus();
+      });
     },
     //打开编辑职位的对话框
     async openEditDialog(row) {
@@ -332,7 +358,7 @@ export default {
     },
     //监听修改对话框的关闭事件
     editDialogClosed() {
-      this.$refs.editRuleForm.resetFields();
+      this.$refs.editRuleRef.resetFields();
     },
     //打开添加职位对话框
     async openAddDialog() {
@@ -354,7 +380,7 @@ export default {
         } else {
           if (this.departmentDefault.length === 2) {
             const { data: res } = await this.$http.post(
-              "grade/addGrade/"+this.departmentDefault[1],
+              "grade/addGrade/" + this.departmentDefault[1],
               this.addRuleForm
             );
             if (res.status !== 200) {
@@ -370,10 +396,10 @@ export default {
         }
       });
     },
-     //监听添加对话框的关闭事件
+    //监听添加对话框的关闭事件
     addDialogClosed() {
       this.$refs.addRuleRef.resetFields();
-    },
+    }
   }
 };
 </script>
