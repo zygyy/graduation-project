@@ -295,29 +295,28 @@ export default {
       }
     },
     //文本框失去焦点
-    async handleInputConfirm(row) {
+   async handleInputConfirm(row) {
       if (row.inputValue.trim().length === 0) {
         row.inputValue = "";
         row.inputVisible = false;
         return;
       }
-      row.describesSplit.push(row.inputValue.trim());
+      row.describesSplit.push(row.inputValue.trim())
       console.log(row);
       row.inputValue = "";
       row.inputVisible = false;
       //发起请求，保存这次操作
-      this.deleteDescribe.id = row.id;
-      this.deleteDescribe.describes = row.describesSplit.join("，");
+      this.deleteDescribe.id=row.id;
+      this.deleteDescribe.describes=row.describesSplit.join('，')
       console.log(this.deleteDescribe);
-      const { data: res } = await this.$http.put(
-        "grade/deleteDescribe",
-        this.deleteDescribe
-      );
-      if (res.status !== 200) {
-        return this.$message.error("新增失败！");
-      } else {
-        this.$message.success("新增成功！");
+      const {data:res}=await this.$http.put("grade/deleteDescribe",
+          this.deleteDescribe);
+      if(res.status!==200){
+        return this.$message.error("新增失败！")
+      }else{
+        this.$message.success("新增成功！")
       }
+
     },
     //点击按钮展示文本输入框
     showInput(row) {

@@ -4,7 +4,6 @@
       <!-- 头部 -->
       <el-header>
         <div>
-          
           <span>员工管理系统</span>
         </div>
         <el-button type="info" @click="logout">退出</el-button>
@@ -66,7 +65,7 @@ export default {
       menulist: [],
       //是否折叠
       isCollapse: false,
-       //被激活的链接地址
+      //被激活的链接地址
       activePath: "",
       //动态绑定一级菜单的图标
       iconsObj: {
@@ -101,7 +100,7 @@ export default {
     toggleCollapse() {
       this.isCollapse = !this.isCollapse;
     },
-     //保存链接的激活状态
+    //保存链接的激活状态
     saveNavState(activePath) {
       window.sessionStorage.setItem("activePath", activePath);
       this.activePath = activePath;

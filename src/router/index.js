@@ -4,8 +4,10 @@ import Router from 'vue-router'
 import Login from '@/components/Login'
 import Home from '@/components/Home'
 import Welcome from '@/components/Welcome'
-import User from '@/components/User/User'
+import User from '@/components/user/User'
 import Grade from '@/components/grade/Grade'
+import Total from '@/components/total/Total'
+
 
 Vue.use(Router)
 
@@ -35,6 +37,10 @@ const router= new Router({
         {
           path:'/grade',
           component:Grade
+        },
+        {
+          path:'/total',
+          component:Total,
         }
       ]
     }
