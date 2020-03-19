@@ -100,6 +100,11 @@ export default {
             //  1.1 项目中除了登录之外的其他API接口，必须在登录之后才能访问
             //  1.2 token 只应该在当前网站打开期间生效，所以将token保存到sessionStorage中
             window.sessionStorage.setItem("token",result.obj.token);
+            window.sessionStorage.setItem("adminEmpId",result.obj.empId);
+            window.sessionStorage.setItem("adminName",result.obj.name);
+            window.sessionStorage.setItem("adminPhone",result.obj.phone);
+            window.sessionStorage.setItem("adminAddress",result.obj.address);
+            window.sessionStorage.setItem("adminUsername",result.obj.username);
             //2.通过编程式导航跳转到后台主页
             this.$router.push("/home");
           }

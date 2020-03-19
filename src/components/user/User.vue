@@ -318,7 +318,7 @@ export default {
         phone: [
           {
             required: true,
-            message: "请输入邮箱",
+            message: "请输入手机号",
             trigger: "blur"
           },
           {

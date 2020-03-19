@@ -69,9 +69,10 @@ export default {
       activePath: "",
       //动态绑定一级菜单的图标
       iconsObj: {
-        "1": "iconfont icon-user",
+        "1": "iconfont icon-users",
         "2": "iconfont icon-tijikongjian",
-        "3": "iconfont icon-baobiao"
+        "3": "iconfont icon-baobiao",
+        "8": "iconfont icon-user"
       }
     };
   },

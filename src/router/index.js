@@ -7,6 +7,7 @@ import Welcome from '@/components/Welcome'
 import User from '@/components/user/User'
 import Grade from '@/components/grade/Grade'
 import Total from '@/components/total/Total'
+import Myself from '@/components/myself/Myself'
 
 
 Vue.use(Router)
@@ -41,6 +42,10 @@ const router= new Router({
         {
           path:'/total',
           component:Total,
+        },
+        {
+          path:'/myself',
+          component:Myself,
         }
       ]
     }
