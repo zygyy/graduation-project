@@ -105,6 +105,7 @@ export default {
             window.sessionStorage.setItem("adminPhone",result.obj.phone);
             window.sessionStorage.setItem("adminAddress",result.obj.address);
             window.sessionStorage.setItem("adminUsername",result.obj.username);
+            window.sessionStorage.setItem("adminPhotoUrl",result.obj.photoUrl);
             //2.通过编程式导航跳转到后台主页
             this.$router.push("/home");
           }

@@ -10,16 +10,30 @@
     <!-- 个人卡片视图区域 -->
     <el-card>
       <div>
-        <el-avatar style="margin-left:70px" :size="200" :src="circleUrl"></el-avatar>
-        <el-tooltip effect="dark" content="修改头像" placement="top">
-          <i class="el-icon-picture-outline-round"></i>
-        </el-tooltip>
-        <el-tooltip effect="dark" content="修改信息" placement="top">
-          <i class="el-icon-edit" @click="disabledJudge===true?update():noupdate()"></i>
-        </el-tooltip>
-        <el-tooltip effect="dark" content="修改密码" placement="top">
-          <i class="iconfont icon-3702mima" @click="updatePasswordDialog"></i>
-        </el-tooltip>
+        <el-avatar style="margin-left:70px" :size="200" :src="imageUrl"></el-avatar>
+
+        <!-- 图片上传  :action="admin/file/upload"-->
+        <el-upload
+          :action="uploadURL"
+          :show-file-list="false"
+          :on-success="handleAvatarSuccess"
+          :before-upload="beforeAvatarUpload"
+          style="float:right;margin-left: 8px"
+        >
+          <el-tooltip effect="dark" content="修改头像" placement="top">
+            <i class="el-icon-picture-outline-round"></i>
+          </el-tooltip>
+        </el-upload>
+
+        <div style="float:right">
+          <el-tooltip effect="dark" content="修改信息" placement="top">
+            <i class="el-icon-edit" @click="disabledJudge===true?update():noupdate()"></i>
+          </el-tooltip>
+          <el-tooltip effect="dark" content="修改密码" placement="top">
+            <i class="iconfont icon-3702mima" @click="updatePasswordDialog"></i>
+          </el-tooltip>
+        </div>
+
         <div>
           <el-collapse v-model="activeName" accordion>
             <el-collapse-item name="1">
@@ -79,6 +93,7 @@
       </div>
     </el-card>
 
+    <!-- 修改密码 -->
     <el-dialog title="修改密码" :visible.sync="updatePasswordVisible" width="30%">
       <el-form ref="passwordFormRef" :model="passwordForm" :rules="passwordFormRules">
         <el-form-item label="登录密码:" prop="password">
@@ -178,12 +193,39 @@ export default {
         username: window.sessionStorage.getItem("adminUsername")
       },
       //头像地址
-      circleUrl:
-        "https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg"
+      imageUrl: window.sessionStorage.getItem("adminPhotoUrl"),
+      uploadURL:
+        "admin/file/upload/" +
+        window.sessionStorage.getItem("adminEmpId") +
+        "/" +
+        window.sessionStorage.getItem("adminName")
     };
   },
   created() {},
   methods: {
+    //文件上传成功时的钩子
+    handleAvatarSuccess(res, file) {
+      if(res.status===200){
+        this.$message.success(res.msg)
+        this.imageUrl = res.obj.name;
+       window.sessionStorage.setItem("adminPhotoUrl",res.obj.name)
+      }else{
+        return this.$message.error(res.msg)
+      }
+      
+    },
+    //上传文件之前的钩子
+    beforeAvatarUpload(file) {
+      const isJPG = file.type === "image/jpeg";
+      const isLt2M = file.size / 1024 / 1024 < 2;
+      if (!isJPG) {
+        this.$message.error("上传头像图片只能是 JPG 格式!");
+      }
+      if (!isLt2M) {
+        this.$message.error("上传头像图片大小不能超过 2MB!");
+      }
+      return isJPG && isLt2M;
+    },
     //将禁用状态变为修改状态
     update() {
       this.disabledJudge = false;
@@ -244,13 +286,13 @@ export default {
         } else {
           if (this.passwordForm.password === this.passwordForm.ensurePassword) {
             const { data: res } = await this.$http.put(
-              "admin/updatePassword/"+this.passwordForm.password
+              "admin/updatePassword/" + this.passwordForm.password
             );
             if (res.status === 200) {
               this.$message.success(res.msg);
               this.updatePasswordVisible = false;
-              this.passwordForm.password="";
-              this.passwordForm.ensurePassword=""
+              this.passwordForm.password = "";
+              this.passwordForm.ensurePassword = "";
             } else {
               return this.$message.error(res.msg);
             }
@@ -261,12 +303,11 @@ export default {
       });
     },
     //修改密码的取消按钮
-    updatePasswordCancel(){
+    updatePasswordCancel() {
       this.updatePasswordVisible = false;
-      this.passwordForm.password="";
-      this.passwordForm.ensurePassword=""
+      this.passwordForm.password = "";
+      this.passwordForm.ensurePassword = "";
     }
-    
   }
 };
 </script>
