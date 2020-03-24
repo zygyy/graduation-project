@@ -70,6 +70,7 @@
                       style="width:189.62px"
                       v-model="informationForm.username"
                       :disabled="disabledJudge"
+                      @blur="ckeckUsername"
                     ></el-input>
                   </el-form-item>
                 </el-form>
@@ -195,7 +196,7 @@ export default {
       //头像地址
       imageUrl: window.sessionStorage.getItem("adminPhotoUrl"),
       uploadURL:
-        "admin/file/upload/" +
+        "file/upload/" +
         window.sessionStorage.getItem("adminEmpId") +
         "/" +
         window.sessionStorage.getItem("adminName")
@@ -205,14 +206,13 @@ export default {
   methods: {
     //文件上传成功时的钩子
     handleAvatarSuccess(res, file) {
-      if(res.status===200){
-        this.$message.success(res.msg)
+      if (res.status === 200) {
+        this.$message.success(res.msg);
         this.imageUrl = res.obj.name;
-       window.sessionStorage.setItem("adminPhotoUrl",res.obj.name)
-      }else{
-        return this.$message.error(res.msg)
+        window.sessionStorage.setItem("adminPhotoUrl", res.obj.name);
+      } else {
+        return this.$message.error(res.msg);
       }
-      
     },
     //上传文件之前的钩子
     beforeAvatarUpload(file) {
@@ -233,7 +233,38 @@ export default {
     },
     //将修改状态变为禁用状态
     noupdate() {
-      this.disabledJudge = true;
+      this.$refs.informationFormRef.validate(async valid => {
+        if (!valid) {
+          return;
+        } else {
+          //如果啥都没修改直接禁用,修改了再调用方法
+          if (
+            this.informationForm.username ===
+              window.sessionStorage.getItem("adminUsername") &&
+            this.informationForm.address.join("/") ===
+              window.sessionStorage.getItem("adminAddress") &&
+            this.informationForm.phone ===
+              window.sessionStorage.getItem("adminPhone")
+          ) {
+            this.disabledJudge = true;
+          } else {
+            this.editInformation();
+            this.disabledJudge = true;
+          }
+        }
+      });
+    },
+    //检测用户名是否重复
+    async ckeckUsername() {
+      const { data: res } = await this.$http.get(
+        "employee/usernameJudge/" + this.informationForm.username
+      );
+      if (res.status !== 200) {
+        this.informationForm.username = "";
+        return this.$message.error(res.msg);
+      } else {
+        this.$message.success(res.msg);
+      }
     },
     //修改基本信息的确定按钮
     editInformation() {
