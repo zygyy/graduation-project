@@ -30,7 +30,7 @@
         >
         <el-table-column type="selection" fixed></el-table-column>
         <el-table-column label="员工编号" prop="empId" fixed width="110px"></el-table-column>
-        <el-table-column label="姓名" prop="chineseName" fixed></el-table-column>
+        <el-table-column label="姓名" prop="chineseName" width="100px" fixed></el-table-column>
         <el-table-column label="性别" prop="gender"></el-table-column>
         <el-table-column label="级别" prop="grade" width="160px"></el-table-column>
         <el-table-column label="就职日期" prop="hireDate" width="100px"></el-table-column>

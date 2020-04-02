@@ -386,6 +386,8 @@ export default {
               return this.$message.error(res.msg);
             } else {
               this.$message.success(res.msg);
+              this.departmentDefault=[],
+              this.addRuleForm.grade=''
               this.addDialogVisible = false;
               this.getDepartments();
             }

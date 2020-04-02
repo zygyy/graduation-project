@@ -8,6 +8,7 @@ import User from '@/components/user/User'
 import Grade from '@/components/grade/Grade'
 import Total from '@/components/total/Total'
 import Myself from '@/components/myself/Myself'
+import Rights from '@/components/rights/Rights'
 
 
 Vue.use(Router)
@@ -46,6 +47,10 @@ const router= new Router({
         {
           path:'/myself',
           component:Myself,
+        },
+        {
+          path:'/rights',
+          component:Rights
         }
       ]
     }

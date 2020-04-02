@@ -70,9 +70,11 @@ export default {
       //动态绑定一级菜单的图标
       iconsObj: {
         "1": "iconfont icon-users",
-        "2": "iconfont icon-tijikongjian",
+        "2": "iconfont icon-danju",
         "3": "iconfont icon-baobiao",
-        "8": "iconfont icon-user"
+        "8": "iconfont icon-user",
+        "10": "iconfont icon-tijikongjian",
+
       }
     };
   },
