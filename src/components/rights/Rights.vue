@@ -16,6 +16,9 @@
             <el-button slot="append" icon="el-icon-search" @click="getGradeList"></el-button>
           </el-input>
         </el-col>
+        <el-col :span="4">
+          <el-button type="primary" @click="addRights">新增权限</el-button>
+        </el-col>
       </el-row>
       <el-table :data="gradeList" border stripe>
         <el-table-column type="index" width="50"></el-table-column>
@@ -53,6 +56,7 @@
       ></el-pagination>
     </el-card>
 
+    <!-- 分配权限对话框 -->
     <el-dialog
       title="分配权限中 . . . . ."
       :visible.sync="rightsDialogVisible"
@@ -72,12 +76,61 @@
         <el-button type="primary" @click="allotRights">确 定</el-button>
       </span>
     </el-dialog>
+
+    <!-- 新增权限对话框 -->
+    <el-dialog
+      title="新增权限中 . . . . ."
+      :visible.sync="addRightsDialogVisible"
+      width="40%"
+      :before-close="closeAddRightsVisible"
+    >
+      <el-form
+        :model="addRightsForm"
+        :rules="addRightsRules"
+        ref="addRightsRef"
+        label-width="100px"
+      >
+        <el-form-item label="权限名称" prop="authName">
+          <el-input v-model="addRightsForm.authName" style="width: 300px;"></el-input>
+        </el-form-item>
+        <el-form-item label="权限路由" prop="path">
+          <el-input v-model="addRightsForm.path" style="width: 300px;" placeholder="以英文编写路由"></el-input>
+        </el-form-item>
+      </el-form>
+
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="closeAddRightsVisible">取 消</el-button>
+        <el-button type="primary" @click="addRightsEnsure">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 <script>
 export default {
   data() {
     return {
+      //添加新权限的表单
+      addRightsForm: {
+        anthName: "",
+        path: ""
+      },
+      //添加新权限的表单验证
+      addRightsRules: {
+        authName: [
+          {
+            required: true,
+            message: "请输入职位名称",
+            trigger: "blur"
+          }
+        ],
+        path: [
+          {
+            required: true,
+            message: "请输入路由",
+            trigger: "blur"
+          }
+        ]
+      },
       //获取用户列表参数
       queryInfo: {
         query: "",
@@ -102,7 +155,9 @@ export default {
       updateRightsRequest: {
         gradeId: "",
         operationId: ""
-      }
+      },
+      //控制新增权限对话框
+      addRightsDialogVisible: false
     };
   },
   created() {
@@ -192,6 +247,38 @@ export default {
       } else {
         return this.$message.error("请选择所要分配的权限！");
       }
+    },
+    //打开新增权限对话框
+    addRights() {
+      this.addRightsDialogVisible = true;
+    },
+    //新增权限取消按钮
+    closeAddRightsVisible() {
+      this.$refs.addRightsRef.resetFields();
+      this.addRightsForm.authName = "";
+      this.addRightsForm.path = "";
+      this.addRightsDialogVisible = false;
+    },
+    //新增权限确定按钮
+    addRightsEnsure() {
+      this.$refs.addRightsRef.validate(async valid => {
+        if (!valid) {
+          return;
+        } else {
+          const { data: res } = await this.$http.post(
+            "rights/addRights",
+            this.addRightsForm
+          );
+          if (res.status !== 200) {
+            return this.$message.error("新增失败！");
+          } else {
+            this.$message.success(res.msg);
+            this.addRightsForm.authName = "";
+            this.addRightsForm.path = "";
+            this.addRightsDialogVisible = false;
+          }
+        }
+      });
     }
   }
 };
