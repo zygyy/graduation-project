@@ -9,6 +9,7 @@ import Grade from '@/components/grade/Grade'
 import Total from '@/components/total/Total'
 import Myself from '@/components/myself/Myself'
 import Rights from '@/components/rights/Rights'
+import BBS from  '@/components/BBS/BBS'
 
 
 Vue.use(Router)
@@ -51,6 +52,10 @@ const router= new Router({
         {
           path:'/rights',
           component:Rights
+        },
+        {
+          path:'/bbs',
+          component:BBS
         }
       ]
     }

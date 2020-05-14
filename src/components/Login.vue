@@ -5,6 +5,7 @@
       <div class="avatar_box">
         <img src="../assets/pic/logo.png" alt />
       </div>
+     
       <!-- 登录表单区域 -->
       <el-form
         ref="loginFromRef"

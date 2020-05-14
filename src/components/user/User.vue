@@ -21,9 +21,6 @@
         <el-col :span="4">
           <el-button type="success" @click="excel">导出数据</el-button>
         </el-col>
-        <el-col :span="4">
-          <el-button type="primary" @click="moreSearch">更多搜索</el-button>
-        </el-col>
       </el-row>
       <!-- 用户列表区域 -->
       <el-table :data="userlist" border stripe @selection-change="handleSelectionChange">
@@ -257,112 +254,7 @@
       </span>
     </el-dialog>
 
-    <!-- 更多搜索对话框 -->
-    <el-dialog title="更多搜索" :visible.sync="moreSearchDialogVisible" width="50%">
-      <el-form ref="moreSearchFormRef" :model="moreSearchForm" :inline="true" label-width="80px">
-        <el-form-item label="员工编号">
-          <el-input v-model="moreSearchForm.empId"></el-input>
-        </el-form-item>
-        <el-form-item label="姓名">
-          <el-input v-model="moreSearchForm.name"></el-input>
-        </el-form-item>
-        <el-form-item label="性别">
-          <el-select v-model="moreSearchForm.gender" placeholder="请选择">
-            <el-option
-              v-for="item in genderOptions"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
-            ></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="邮箱">
-          <el-input v-model="moreSearchForm.email"></el-input>
-        </el-form-item>
-        <el-form-item label="入职日期">
-          <el-date-picker v-model="moreSearchForm.hireDateStart" type="date" placeholder="开始日期"></el-date-picker>To:
-          <el-date-picker v-model="moreSearchForm.hireDateFinish" type="date" placeholder="结束日期"></el-date-picker>
-        </el-form-item>
-        <el-form-item label="学校">
-          <el-input v-model="moreSearchForm.school"></el-input>
-        </el-form-item>
-        <el-form-item label="专业">
-          <el-input v-model="moreSearchForm.marjor"></el-input>
-        </el-form-item>
-        <el-form-item label="学位">
-          <el-select v-model="moreSearchForm.degree">
-            <el-option
-              v-for="item in degreeOptions"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
-            ></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="手机号">
-          <el-input v-model="moreSearchForm.phone"></el-input>
-        </el-form-item>
-        <el-form-item label="毕业时间">
-          <el-date-picker
-            v-model="moreSearchForm.graduationTimeStart"
-            type="date"
-            placeholder="开始日期"
-          ></el-date-picker>To:
-          <el-date-picker
-            v-model="moreSearchForm.graduationTimeFinish"
-            type="date"
-            placeholder="结束日期"
-          ></el-date-picker>
-        </el-form-item>
-        <el-form-item label="生日">
-          <el-date-picker v-model="moreSearchForm.birthdayStart" type="date" placeholder="开始日期"></el-date-picker>To:
-          <el-date-picker v-model="moreSearchForm.birthdayFinish" type="date" placeholder="结束日期"></el-date-picker>
-        </el-form-item>
-        <el-form-item label="家庭住址">
-          <el-cascader :options="cityData" v-model="moreSearchForm.address" class="addressClass"></el-cascader>
-        </el-form-item>
-        <el-form-item label="工作地点">
-          <el-cascader
-            :options="cityData"
-            v-model="moreSearchForm.workingLocation"
-            class="addressClass"
-          ></el-cascader>
-        </el-form-item>
-        <el-form-item label="部门职位">
-          <el-cascader
-            v-model="moreSearchForm.gradeSelect"
-            :options="departments"
-            :props="moreSearchProps"
-            class="addressClass"
-          ></el-cascader>
-        </el-form-item>
-        <el-form-item label="离职时间">
-          <el-date-picker v-model="moreSearchForm.leaveDateStart" type="date" placeholder="开始日期"></el-date-picker>To:
-          <el-date-picker v-model="moreSearchForm.leaveDateFinish" type="date" placeholder="结束日期"></el-date-picker>
-        </el-form-item>
-        <el-form-item label="辞职原因">
-          <el-input type="textarea" v-model="moreSearchForm.terminationReason" class="addressClass"></el-input>
-        </el-form-item>
-        <el-form-item label="创建人">
-          <el-input v-model="moreSearchForm.createUser"></el-input>
-        </el-form-item>
-        <el-form-item label="修改人">
-          <el-input v-model="moreSearchForm.updateUser"></el-input>
-        </el-form-item>
-        <el-form-item label="创建时间">
-          <el-date-picker v-model="moreSearchForm.createTimeStart" type="date" placeholder="开始日期"></el-date-picker>To:
-          <el-date-picker v-model="moreSearchForm.createTimeFinish" type="date" placeholder="结束日期"></el-date-picker>
-        </el-form-item>
-        <el-form-item label="修改时间">
-          <el-date-picker v-model="moreSearchForm.updateTimeStart" type="date" placeholder="开始日期"></el-date-picker>To:
-          <el-date-picker v-model="moreSearchForm.updateTimeFinish" type="date" placeholder="结束日期"></el-date-picker>
-        </el-form-item>
-      </el-form>
-      <span slot="footer">
-        <el-button @click="moreSearchDialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="moreSearchEnSure">确 定</el-button>
-      </span>
-    </el-dialog>
+   
   </div>
 </template>
 <script>
@@ -389,48 +281,6 @@ export default {
       }
     };
     return {
-      //更多搜索对话框
-      moreSearchDialogVisible: false,
-      //更多搜索表单
-      moreSearchForm: {
-        empId: "",
-        name: "",
-        gender: "",
-        email: "",
-        hireDateStart: "",
-        hireDateStart: "",
-        school: "",
-        marjor: "",
-        degree: "",
-        phone: "",
-        graduationTimeStart: "",
-        graduationTimeFinish: "",
-        birthdayStart: "",
-        birthdayFinish: "",
-        address: [],
-        workingLocation: [],
-        gradeSelect: [],
-        grade: "",
-        department: "",
-        leaveDateStart: "",
-        leaveDateFinish: "",
-        terminationReason: "",
-        createUser: "",
-        updateUser: "",
-        createTimeStart: "",
-        createTimeFinish: "",
-        updateTimeStart: "",
-        updateTimeFinish: "",
-        pagenum: 1,
-        pagesize: 5
-      },
-      moreSearchProps: {
-        value: "name",
-        label: "name",
-        children: "firstChildren",
-        checkStrictly: true,
-        expandTrigger: "hover"
-      },
       //获取用户列表参数
       queryInfo: {
         query: "",
@@ -858,44 +708,6 @@ export default {
       val.forEach(item => {
         this.multipleSelection.push(item.empId);
       });
-    },
-    //打开更多搜索对话框
-    moreSearch() {
-      this.getDepartments();
-      this.moreSearchDialogVisible = true;
-    },
-    //更多搜索的确定按钮
-    async moreSearchEnSure() {
-      if (this.moreSearchForm.address.length !== 0) {
-        this.moreSearchForm.address = this.moreSearchForm.address.join("/");
-      } else {
-        this.moreSearchForm.address = "";
-      }
-      if (this.moreSearchForm.workingLocation.length !== 0) {
-        this.moreSearchForm.workingLocation = this.moreSearchForm.workingLocation.join(
-          "/"
-        );
-      } else {
-        this.moreSearchForm.workingLocation = "";
-      }
-      if (this.moreSearchForm.gradeSelect.length === 3) {
-        this.moreSearchForm.department =
-          this.moreSearchForm.gradeSelect[0] +
-          "/" +
-          this.moreSearchForm.gradeSelect[1];
-        this.moreSearchForm.grade = this.moreSearchForm.gradeSelect[2];
-      } else if (this.moreSearchForm.gradeSelect.length !== 0) {
-        this.moreSearchForm.department = this.moreSearchForm.gradeSelect.join(
-          "/"
-        );
-      }
-      console.log(this.moreSearchForm);
-      const { data: res } = await this.$http.get("admin/moreSearch");
-      if (res.status === 200) {
-      } else {
-      }
-
-      this.moreSearchDialogVisible = false;
     }
   }
 };

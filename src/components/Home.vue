@@ -6,6 +6,9 @@
         <div>
           <span>员工管理系统</span>
         </div>
+        <div style=" margin-left: 1000px;">
+          管理员：{{name}}
+        </div>
         <el-button type="info" @click="logout">退出</el-button>
       </el-header>
       <el-container>
@@ -73,9 +76,10 @@ export default {
         "2": "iconfont icon-danju",
         "3": "iconfont icon-baobiao",
         "8": "iconfont icon-user",
-        "10": "iconfont icon-tijikongjian",
-
-      }
+        "10": "iconfont icon-lock_fill",
+        "25": "iconfont icon-tijikongjian"
+      },
+      name: window.sessionStorage.getItem("adminName")
     };
   },
   created() {

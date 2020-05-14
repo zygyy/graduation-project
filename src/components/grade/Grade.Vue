@@ -295,28 +295,28 @@ export default {
       }
     },
     //文本框失去焦点
-   async handleInputConfirm(row) {
+    async handleInputConfirm(row) {
+      //trim去除空格
       if (row.inputValue.trim().length === 0) {
         row.inputValue = "";
         row.inputVisible = false;
         return;
       }
-      row.describesSplit.push(row.inputValue.trim())
-      console.log(row);
+      row.describesSplit.push(row.inputValue.trim());
       row.inputValue = "";
       row.inputVisible = false;
       //发起请求，保存这次操作
-      this.deleteDescribe.id=row.id;
-      this.deleteDescribe.describes=row.describesSplit.join('，')
-      console.log(this.deleteDescribe);
-      const {data:res}=await this.$http.put("grade/deleteDescribe",
-          this.deleteDescribe);
-      if(res.status!==200){
-        return this.$message.error("新增失败！")
-      }else{
-        this.$message.success("新增成功！")
+      this.deleteDescribe.id = row.id;
+      this.deleteDescribe.describes = row.describesSplit.join("，");
+      const { data: res } = await this.$http.put(
+        "grade/deleteDescribe",
+        this.deleteDescribe
+      );
+      if (res.status !== 200) {
+        return this.$message.error("新增失败！");
+      } else {
+        this.$message.success("新增成功！");
       }
-
     },
     //点击按钮展示文本输入框
     showInput(row) {
@@ -386,8 +386,7 @@ export default {
               return this.$message.error(res.msg);
             } else {
               this.$message.success(res.msg);
-              this.departmentDefault=[],
-              this.addRuleForm.grade=''
+              (this.departmentDefault = []), (this.addRuleForm.grade = "");
               this.addDialogVisible = false;
               this.getDepartments();
             }
@@ -399,6 +398,11 @@ export default {
     },
     //监听添加对话框的关闭事件
     addDialogClosed() {
+      this.addRuleForm.name="";
+      this.addRuleForm.describes="";
+      this.addRuleForm.scale="";
+      this.departmentDefault = [],
+      this.addRuleForm.grade = "";
       this.$refs.addRuleRef.resetFields();
     }
   }
