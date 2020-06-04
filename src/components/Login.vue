@@ -1,41 +1,54 @@
 <template>
-  <div class="login_container">
-    <div class="login_box">
-      <!-- 头像区域 -->
-      <div class="avatar_box">
-        <img src="../assets/pic/logo.png" alt />
+  <div class="homepage-hero-module">
+    <div class="video-container">
+      <div class="filter"></div>
+      <video
+        autoplay
+        loop
+        muted
+        playsinline
+        src="../assets/pic/Down_by_the_River.mp4"
+        class="fillWidth"
+      ></video>
+      <div class="poster hidden">
+        <img src alt />
       </div>
-     
-      <!-- 登录表单区域 -->
-      <el-form
-        ref="loginFromRef"
-        :rules="loginFromRules"
-        :model="loginFrom"
-        label-width="0px"
-        class="login_form"
-      >
-        <!-- 管理员名称 -->
-        <el-form-item prop="username">
-          <el-input v-model="loginFrom.username" prefix-icon="iconfont icon-user"></el-input>
-        </el-form-item>
-        <!-- 密码 -->
-        <el-form-item prop="password">
-          <el-input
-            type="password"
-            v-model="loginFrom.password"
-            prefix-icon="iconfont icon-3702mima"
-          ></el-input>
-        </el-form-item>
-        <el-form-item class="btns">
-          <el-button type="primary" @click="login">登录</el-button>
-          <el-button type="info" @click="resetLoginForm">重置</el-button>
-        </el-form-item>
-      </el-form>
+
+      <div class="login_container">
+        <div class="login_box">
+          <div class="avatar_box">
+            <img src="../assets/pic/logo.png" alt />
+          </div>
+          <el-form
+            ref="loginFromRef"
+            :rules="loginFromRules"
+            :model="loginFrom"
+            label-width="0px"
+            class="login_form"
+          >
+            <el-form-item prop="username">
+              <el-input v-model="loginFrom.username" prefix-icon="iconfont icon-user"></el-input>
+            </el-form-item>
+            <el-form-item prop="password">
+              <el-input
+                type="password"
+                v-model="loginFrom.password"
+                prefix-icon="iconfont icon-3702mima"
+              ></el-input>
+            </el-form-item>
+            <el-form-item class="btns">
+              <el-button type="primary" @click="login">登录</el-button>
+              <el-button type="info" @click="resetLoginForm">重置</el-button>
+            </el-form-item>
+          </el-form>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
+import $ from "jquery";
 export default {
   data() {
     return {
@@ -74,12 +87,72 @@ export default {
       }
     };
   },
-  created() {},
+  created() {
+    // jQuery is required to run this code
+    $(document).ready(function() {
+      scaleVideoContainer();
+
+      initBannerVideoSize(".video-container .poster img");
+      initBannerVideoSize(".video-container .filter");
+      initBannerVideoSize(".video-container video");
+
+      $(window).on("resize", function() {
+        scaleVideoContainer();
+        scaleBannerVideoSize(".video-container .poster img");
+        scaleBannerVideoSize(".video-container .filter");
+        scaleBannerVideoSize(".video-container video");
+      });
+    });
+
+    function scaleVideoContainer() {
+      var height = $(window).height() + 5;
+      var unitHeight = parseInt(height) + "px";
+      $(".homepage-hero-module").css("height", unitHeight);
+    }
+
+    function initBannerVideoSize(element) {
+      $(element).each(function() {
+        $(this).data("height", $(this).height());
+        $(this).data("width", $(this).width());
+      });
+
+      scaleBannerVideoSize(element);
+    }
+
+    function scaleBannerVideoSize(element) {
+      var windowWidth = $(window).width(),
+        windowHeight = $(window).height() + 5,
+        videoWidth,
+        videoHeight;
+
+      // console.log(windowHeight);
+      $(element).each(function() {
+        var videoAspectRatio = $(this).data("height") / $(this).data("width");
+        $(this).width(windowWidth);
+        if (windowWidth < 1000) {
+          videoHeight = windowHeight;
+          videoWidth = videoHeight / videoAspectRatio;
+          $(this).css({
+            "margin-top": 0,
+            "margin-left": -(videoWidth - windowWidth) / 2 + "px"
+          });
+          $(this)
+            .width(videoWidth)
+            .height(videoHeight);
+        }
+        $(".homepage-hero-module .video-container video").addClass(
+          "fadeIn animated"
+        );
+      });
+    }
+  },
   methods: {
     //重置操作
     resetLoginForm() {
       //清空表单内容
       this.$refs.loginFromRef.resetFields();
+      this.loginFrom.username = "";
+      this.loginFrom.password = "";
     },
     //登录
     login() {
@@ -97,16 +170,16 @@ export default {
             return this.$message.error(result.msg);
           } else {
             this.$message.success(result.msg);
-             //1.将登录成功之后的token，保存到客户端的sessionStorage中
+            //1.将登录成功之后的token，保存到客户端的sessionStorage中
             //  1.1 项目中除了登录之外的其他API接口，必须在登录之后才能访问
             //  1.2 token 只应该在当前网站打开期间生效，所以将token保存到sessionStorage中
-            window.sessionStorage.setItem("token",result.obj.token);
-            window.sessionStorage.setItem("adminEmpId",result.obj.empId);
-            window.sessionStorage.setItem("adminName",result.obj.name);
-            window.sessionStorage.setItem("adminPhone",result.obj.phone);
-            window.sessionStorage.setItem("adminAddress",result.obj.address);
-            window.sessionStorage.setItem("adminUsername",result.obj.username);
-            window.sessionStorage.setItem("adminPhotoUrl",result.obj.photoUrl);
+            window.sessionStorage.setItem("token", result.obj.token);
+            window.sessionStorage.setItem("adminEmpId", result.obj.empId);
+            window.sessionStorage.setItem("adminName", result.obj.name);
+            window.sessionStorage.setItem("adminPhone", result.obj.phone);
+            window.sessionStorage.setItem("adminAddress", result.obj.address);
+            window.sessionStorage.setItem("adminUsername", result.obj.username);
+            window.sessionStorage.setItem("adminPhotoUrl", result.obj.photoUrl);
             //2.通过编程式导航跳转到后台主页
             this.$router.push("/home");
           }
@@ -126,7 +199,6 @@ export default {
 .login_box {
   width: 450px;
   height: 300px;
-  background-color: #2b4b6b;
   border-radius: 3px;
   position: absolute;
   left: 50%;
@@ -162,5 +234,56 @@ export default {
   width: 100%;
   padding: 0 20px;
   box-sizing: border-box;
+}
+
+//视频
+
+.homepage-hero-module {
+  border-right: none;
+  border-left: none;
+  position: relative;
+}
+
+.no-video .video-container video,
+.touch .video-container video {
+  display: none;
+}
+
+.no-video .video-container .poster,
+.touch .video-container .poster {
+  display: block !important;
+}
+
+.video-container {
+  position: relative;
+  bottom: 0%;
+  left: 0%;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  background: #000;
+}
+
+.video-container .poster img {
+  width: 100%;
+  bottom: 0;
+  position: absolute;
+}
+
+.video-container .filter {
+  z-index: 100;
+  position: absolute;
+  background: rgba(0, 0, 0, 0.4);
+  width: 100%;
+}
+
+.video-container video {
+  position: absolute;
+  z-index: 0;
+  bottom: 0;
+}
+
+.video-container video.fillWidth {
+  width: 100%;
 }
 </style>

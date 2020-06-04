@@ -309,7 +309,6 @@ export default {
         return this.$message.error("加载失败！");
       }
     },
-   
     //级联选择器改变事件
     async cascaderChange() {
       this.option3.legend.data = [];
